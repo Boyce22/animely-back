@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@config": ["./src/config/index.ts"],
+      "@utils": ["./src/shared/utils/index.ts"],
+      "@middlewares": ["./src/shared/middlewares/index.ts"],
+      "@errors": ["./src/shared/errors/index.ts"],
+      "@security": ["./src/shared/security/index.ts"],
+
+      "@enums": ["./src/shared/enums/index.ts"],
+      "@interfaces": ["./src/shared/interfaces/index.ts"],
+      "@types": ["./src/shared/types/index.ts"],
+      "@storage": ["./src/shared/storage/index.ts"],
+
+      "@/modules/*": ["./src/modules/*"],
+      "@/shared/*": ["./src/shared/*"],
+      "@/database/*": ["./src/database/*"]
+    },
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "sourceMap": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

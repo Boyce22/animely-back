@@ -1,0 +1,122 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class AddProfileCustomization1777339546455 implements MigrationInterface {
+    name = 'AddProfileCustomization1777339546455'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP CONSTRAINT "FK_312c63be865c81b922e39c2475e"`);
+        await queryRunner.query(`DROP INDEX "c0"."IDX_312c63be865c81b922e39c2475"`);
+        await queryRunner.query(`DROP INDEX "c0"."IDX_3d5a1f635f5d457f52435b5c4e"`);
+        await queryRunner.query(`CREATE TABLE "c0"."article_posts" ("post_id" uuid NOT NULL, "banner_url" character varying(500), "excerpt" text, "content_json" jsonb NOT NULL, "reading_time_minutes" integer NOT NULL DEFAULT '1', CONSTRAINT "PK_894fd29f1a8f6c4b11f08e16fe4" PRIMARY KEY ("post_id"))`);
+        await queryRunner.query(`CREATE TABLE "c0"."video_posts" ("post_id" uuid NOT NULL, "video_url" character varying(500) NOT NULL, "thumbnail_url" character varying(500), "duration_seconds" integer NOT NULL, "width" integer NOT NULL, "height" integer NOT NULL, "is_vertical" boolean NOT NULL DEFAULT true, "view_count" integer NOT NULL DEFAULT '0', CONSTRAINT "PK_6e506253b9abb897d4ee1142477" PRIMARY KEY ("post_id"))`);
+        await queryRunner.query(`CREATE TABLE "c0"."user_profile_customizations" ("id" uuid NOT NULL, "user_id" uuid NOT NULL, "publishedLayout" jsonb NOT NULL, "draftLayout" jsonb, "schemaVersion" integer NOT NULL DEFAULT '1', "isEnabled" boolean NOT NULL DEFAULT true, "publishedAt" TIMESTAMP WITH TIME ZONE, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "REL_58627de96b3212a909f6a38f79" UNIQUE ("user_id"), CONSTRAINT "PK_def1ea8dd39b88e8142a80a7478" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_58627de96b3212a909f6a38f79" ON "c0"."user_profile_customizations" ("user_id") `);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "contain_spoilers"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "is_pinned"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "is_featured"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "content"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "excerpt"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "tag"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "banner_url"`);
+        await queryRunner.query(`CREATE TYPE "c0"."post_type_enum" AS ENUM('ARTICLE', 'VIDEO')`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "type" "c0"."post_type_enum" NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "caption" text`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "save_count" integer NOT NULL DEFAULT '0'`);
+        await queryRunner.query(`ALTER TYPE "c0"."posts_status_enum" RENAME TO "posts_status_enum_old"`);
+        await queryRunner.query(`CREATE TYPE "c0"."post_status_enum" AS ENUM('DRAFT', 'PUBLISHED', 'ARCHIVED')`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "status" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "status" TYPE "c0"."post_status_enum" USING "status"::"text"::"c0"."post_status_enum"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "status" SET DEFAULT 'DRAFT'`);
+        await queryRunner.query(`DROP TYPE "c0"."posts_status_enum_old"`);
+        await queryRunner.query(`ALTER TYPE "c0"."posts_visibility_status_enum" RENAME TO "posts_visibility_status_enum_old"`);
+        await queryRunner.query(`CREATE TYPE "c0"."post_visibility_status_enum" AS ENUM('PUBLIC', 'PRIVATE', 'UNLISTED', 'HIDDEN')`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "visibility_status" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "visibility_status" TYPE "c0"."post_visibility_status_enum" USING "visibility_status"::"text"::"c0"."post_visibility_status_enum"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "visibility_status" SET DEFAULT 'PUBLIC'`);
+        await queryRunner.query(`DROP TYPE "c0"."posts_visibility_status_enum_old"`);
+        await queryRunner.query(`ALTER TYPE "c0"."posts_moderation_status_enum" RENAME TO "posts_moderation_status_enum_old"`);
+        await queryRunner.query(`CREATE TYPE "c0"."post_moderation_status_enum" AS ENUM('IN_REVIEW', 'APPROVED', 'REJECTED', 'REMOVED')`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "moderation_status" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "moderation_status" TYPE "c0"."post_moderation_status_enum" USING "moderation_status"::"text"::"c0"."post_moderation_status_enum"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "moderation_status" SET DEFAULT 'IN_REVIEW'`);
+        await queryRunner.query(`DROP TYPE "c0"."posts_moderation_status_enum_old"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "published_at"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "published_at" TIMESTAMP WITH TIME ZONE`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "created_at"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "updated_at"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "deleted_at"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "deleted_at" TIMESTAMP WITH TIME ZONE`);
+        await queryRunner.query(`CREATE INDEX "idx_posts_published_at" ON "c0"."posts" ("published_at") `);
+        await queryRunner.query(`CREATE INDEX "idx_posts_moderation_status" ON "c0"."posts" ("moderation_status") `);
+        await queryRunner.query(`CREATE INDEX "idx_posts_visibility_status" ON "c0"."posts" ("visibility_status") `);
+        await queryRunner.query(`CREATE INDEX "idx_posts_status" ON "c0"."posts" ("status") `);
+        await queryRunner.query(`CREATE INDEX "idx_posts_type" ON "c0"."posts" ("type") `);
+        await queryRunner.query(`CREATE INDEX "idx_posts_work_id" ON "c0"."posts" ("work_id") `);
+        await queryRunner.query(`CREATE INDEX "idx_posts_author_id" ON "c0"."posts" ("author_id") `);
+        await queryRunner.query(`ALTER TABLE "c0"."article_posts" ADD CONSTRAINT "FK_894fd29f1a8f6c4b11f08e16fe4" FOREIGN KEY ("post_id") REFERENCES "c0"."posts"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "c0"."video_posts" ADD CONSTRAINT "FK_6e506253b9abb897d4ee1142477" FOREIGN KEY ("post_id") REFERENCES "c0"."posts"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD CONSTRAINT "FK_312c63be865c81b922e39c2475e" FOREIGN KEY ("author_id") REFERENCES "c0"."users"("id") ON DELETE RESTRICT ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "c0"."user_profile_customizations" ADD CONSTRAINT "FK_58627de96b3212a909f6a38f79b" FOREIGN KEY ("user_id") REFERENCES "c0"."users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "c0"."user_profile_customizations" DROP CONSTRAINT "FK_58627de96b3212a909f6a38f79b"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP CONSTRAINT "FK_312c63be865c81b922e39c2475e"`);
+        await queryRunner.query(`ALTER TABLE "c0"."video_posts" DROP CONSTRAINT "FK_6e506253b9abb897d4ee1142477"`);
+        await queryRunner.query(`ALTER TABLE "c0"."article_posts" DROP CONSTRAINT "FK_894fd29f1a8f6c4b11f08e16fe4"`);
+        await queryRunner.query(`DROP INDEX "c0"."idx_posts_author_id"`);
+        await queryRunner.query(`DROP INDEX "c0"."idx_posts_work_id"`);
+        await queryRunner.query(`DROP INDEX "c0"."idx_posts_type"`);
+        await queryRunner.query(`DROP INDEX "c0"."idx_posts_status"`);
+        await queryRunner.query(`DROP INDEX "c0"."idx_posts_visibility_status"`);
+        await queryRunner.query(`DROP INDEX "c0"."idx_posts_moderation_status"`);
+        await queryRunner.query(`DROP INDEX "c0"."idx_posts_published_at"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "deleted_at"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "deleted_at" TIMESTAMP`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "updated_at"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "updated_at" TIMESTAMP NOT NULL DEFAULT now()`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "created_at"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "created_at" TIMESTAMP NOT NULL DEFAULT now()`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "published_at"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "published_at" TIMESTAMP`);
+        await queryRunner.query(`CREATE TYPE "c0"."posts_moderation_status_enum_old" AS ENUM('IN_REVIEW', 'OK', 'REPORTED', 'FLAGGED', 'RESTRICTED', 'DELETED')`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "moderation_status" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "moderation_status" TYPE "c0"."posts_moderation_status_enum_old" USING "moderation_status"::"text"::"c0"."posts_moderation_status_enum_old"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "moderation_status" SET DEFAULT 'IN_REVIEW'`);
+        await queryRunner.query(`DROP TYPE "c0"."post_moderation_status_enum"`);
+        await queryRunner.query(`ALTER TYPE "c0"."posts_moderation_status_enum_old" RENAME TO "posts_moderation_status_enum"`);
+        await queryRunner.query(`CREATE TYPE "c0"."posts_visibility_status_enum_old" AS ENUM('PUBLIC', 'PRIVATE', 'UNLISTED', 'HIDDEN')`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "visibility_status" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "visibility_status" TYPE "c0"."posts_visibility_status_enum_old" USING "visibility_status"::"text"::"c0"."posts_visibility_status_enum_old"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "visibility_status" SET DEFAULT 'PUBLIC'`);
+        await queryRunner.query(`DROP TYPE "c0"."post_visibility_status_enum"`);
+        await queryRunner.query(`ALTER TYPE "c0"."posts_visibility_status_enum_old" RENAME TO "posts_visibility_status_enum"`);
+        await queryRunner.query(`CREATE TYPE "c0"."posts_status_enum_old" AS ENUM('DRAFT', 'PUBLISHED', 'ARCHIVED')`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "status" DROP DEFAULT`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "status" TYPE "c0"."posts_status_enum_old" USING "status"::"text"::"c0"."posts_status_enum_old"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ALTER COLUMN "status" SET DEFAULT 'DRAFT'`);
+        await queryRunner.query(`DROP TYPE "c0"."post_status_enum"`);
+        await queryRunner.query(`ALTER TYPE "c0"."posts_status_enum_old" RENAME TO "posts_status_enum"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "save_count"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "caption"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" DROP COLUMN "type"`);
+        await queryRunner.query(`DROP TYPE "c0"."post_type_enum"`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "banner_url" character varying(255) NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "tag" character varying(80)`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "excerpt" character varying(180)`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "content" text NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "is_featured" boolean NOT NULL DEFAULT false`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "is_pinned" boolean NOT NULL DEFAULT false`);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD "contain_spoilers" boolean NOT NULL DEFAULT false`);
+        await queryRunner.query(`DROP INDEX "c0"."IDX_58627de96b3212a909f6a38f79"`);
+        await queryRunner.query(`DROP TABLE "c0"."user_profile_customizations"`);
+        await queryRunner.query(`DROP TABLE "c0"."video_posts"`);
+        await queryRunner.query(`DROP TABLE "c0"."article_posts"`);
+        await queryRunner.query(`CREATE INDEX "IDX_3d5a1f635f5d457f52435b5c4e" ON "c0"."posts" ("work_id") `);
+        await queryRunner.query(`CREATE INDEX "IDX_312c63be865c81b922e39c2475" ON "c0"."posts" ("author_id") `);
+        await queryRunner.query(`ALTER TABLE "c0"."posts" ADD CONSTRAINT "FK_312c63be865c81b922e39c2475e" FOREIGN KEY ("author_id") REFERENCES "c0"."users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+    }
+
+}

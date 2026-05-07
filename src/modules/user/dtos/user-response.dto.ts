@@ -1,0 +1,30 @@
+export interface UserResponse {
+  id: string;
+  name: string;
+  lastName: string;
+  fullName: string;
+  username: string;
+  profilePictureUrl?: string;
+  bannerUrl?: string;
+  biography?: string;
+  role: string;
+  isVerified: boolean;
+  theme: string;
+  preferredLanguage: string;
+  showMatureContent: boolean;
+  worksCreated?: number;
+  chaptersCreated?: number;
+  commentsCount?: number;
+  favoritesCount?: number;
+  ratingsCount?: number;
+  collectionsCount?: number;
+  followingCount?: number;
+  followersCount?: number;
+  isProfilePublic: boolean;
+  showActivity: boolean;
+  showCollections: boolean;
+  timeZone?: string;
+  createdAt: string;
+  updatedAt: string;
+  lastLoginAt?: string;
+}

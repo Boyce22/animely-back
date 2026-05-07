@@ -1,0 +1,19 @@
+export class AppError extends Error {
+  public readonly statusCode: number;
+  public readonly isOperational: boolean;
+  public readonly details?: any;
+
+  constructor(message: string, statusCode: number = 500, details?: any) {
+    super(message);
+
+    this.statusCode = statusCode;
+    this.isOperational = true;
+    this.details = details;
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+
+    Object.setPrototypeOf(this, AppError.prototype);
+  }
+}

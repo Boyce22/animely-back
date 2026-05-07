@@ -1,0 +1,1321 @@
+{
+  "info": {
+    "_postman_id": "tsukuyomi-api-v3",
+    "name": "Tsukuyomi API v3",
+    "description": "Complete API collection for the Tsukuyomi anime and manga work platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Root",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John\",\n  \"lastName\": \"Doe\",\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"SecurePassword123\",\n  \"birthDate\": \"1995-06-15\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', data.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', data.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"john@example.com\",\n  \"password\": \"SecurePassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', data.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', data.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Profile",
+          "item": [
+            {
+              "name": "Get My Profile",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me"]
+                }
+              }
+            },
+            {
+              "name": "Update My Profile (Full)",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"John\",\n  \"lastName\": \"Doe\",\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"birthDate\": \"1995-06-15\",\n  \"address\": {\n    \"countryId\": 1,\n    \"stateId\": 1,\n    \"cityId\": 1,\n    \"timeZoneId\": 1\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me"]
+                }
+              }
+            },
+            {
+              "name": "Patch My Profile",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Johnny\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me"]
+                }
+              }
+            },
+            {
+              "name": "Change Password",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"currentPassword\": \"SecurePassword123\",\n  \"newPassword\": \"NewPassword456!\",\n  \"confirmNewPassword\": \"NewPassword456!\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/change-password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me", "change-password"]
+                }
+              }
+            },
+            {
+              "name": "Upload Profile Picture",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "file", "type": "file", "src": "" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/profile-picture",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me", "profile-picture"]
+                }
+              }
+            },
+            {
+              "name": "Upload Profile Banner",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "file", "type": "file", "src": "" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/banner",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me", "banner"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Public",
+          "item": [
+            {
+              "name": "Register User",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"John\",\n  \"lastName\": \"Doe\",\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"SecurePassword123\",\n  \"birthDate\": \"1995-06-15\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "List Users",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users?page=1&limit=20&order=ASC",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users"],
+                  "query": [
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "20" },
+                    { "key": "search", "value": "", "disabled": true },
+                    { "key": "order", "value": "ASC" },
+                    { "key": "role", "value": "USER", "disabled": true },
+                    { "key": "active", "value": "true", "disabled": true }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get User by ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/{{userId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "{{userId}}"]
+                }
+              }
+            },
+            {
+              "name": "Patch User (Admin)",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Name\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/{{userId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "{{userId}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete User (Admin)",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/{{userId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "{{userId}}"]
+                }
+              }
+            },
+            {
+              "name": "Verify User (Admin)",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/{{userId}}/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "{{userId}}", "verify"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Profile Customization",
+          "item": [
+            {
+              "name": "Get My Profile Customization",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/profile-customization",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me", "profile-customization"]
+                }
+              }
+            },
+            {
+              "name": "Save Draft Layout",
+              "request": {
+                "method": "PUT",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"version\": 2,\n  \"grid\": { \"cols\": 12, \"rowHeight\": 40, \"gap\": 8 },\n  \"theme\": {\n    \"background\": { \"type\": \"solid\", \"color\": \"#0f0f0f\" },\n    \"textColor\": \"#ffffff\",\n    \"accentColor\": \"#7c3aed\",\n    \"cardStyle\": \"glass\",\n    \"overlay\": { \"type\": \"hearts\", \"color\": \"#ff69b4\", \"opacity\": 0.3, \"density\": 20, \"speed\": 1 }\n  },\n  \"widgets\": [\n    {\n      \"id\": \"avatar-1\",\n      \"type\": \"AVATAR_CARD\",\n      \"visible\": true,\n      \"position\": { \"x\": 0, \"y\": 0, \"w\": 3, \"h\": 6 },\n      \"style\": { \"borderRadius\": \"12px\", \"boxShadow\": \"0 4px 24px rgba(0,0,0,0.5)\" },\n      \"config\": {}\n    },\n    {\n      \"id\": \"bio-1\",\n      \"type\": \"BIO\",\n      \"visible\": true,\n      \"position\": { \"x\": 3, \"y\": 0, \"w\": 9, \"h\": 3 },\n      \"style\": { \"background\": \"rgba(255,255,255,0.05)\", \"backdropFilter\": \"blur(8px)\", \"borderRadius\": \"12px\" },\n      \"config\": {}\n    },\n    {\n      \"id\": \"fav-anime-1\",\n      \"type\": \"FAVORITE_ANIME\",\n      \"title\": \"Favorite Anime\",\n      \"visible\": true,\n      \"position\": { \"x\": 0, \"y\": 6, \"w\": 6, \"h\": 6 },\n      \"style\": { \"borderRadius\": \"8px\" },\n      \"config\": { \"maxItems\": 6 }\n    },\n    {\n      \"id\": \"fav-manga-1\",\n      \"type\": \"FAVORITE_MANGA\",\n      \"title\": \"Favorite Manga\",\n      \"visible\": true,\n      \"position\": { \"x\": 6, \"y\": 6, \"w\": 6, \"h\": 6 },\n      \"style\": { \"borderRadius\": \"8px\" },\n      \"config\": { \"maxItems\": 6 }\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/profile-customization/draft",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me", "profile-customization", "draft"]
+                }
+              }
+            },
+            {
+              "name": "Publish Draft Layout",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/profile-customization/publish",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me", "profile-customization", "publish"]
+                }
+              }
+            },
+            {
+              "name": "Discard Draft Layout",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/profile-customization/draft",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me", "profile-customization", "draft"]
+                }
+              }
+            },
+            {
+              "name": "Toggle Profile Customization",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"isEnabled\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/profile-customization",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me", "profile-customization"]
+                }
+              }
+            },
+            {
+              "name": "Get User Public Layout",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/{{userId}}/profile-customization",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "{{userId}}", "profile-customization"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Countries",
+      "item": [
+        {
+          "name": "List Countries",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/countries?limit=20&order=asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "countries"],
+              "query": [
+                { "key": "cursor", "value": "", "disabled": true },
+                { "key": "limit", "value": "20" },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "order", "value": "asc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Country by ISO",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/countries/BR",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "countries", "BR"]
+            }
+          }
+        },
+        {
+          "name": "Get States by Country",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/countries/{{countryId}}/states",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "countries", "{{countryId}}", "states"]
+            }
+          }
+        },
+        {
+          "name": "Get Cities by State",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/countries/states/{{stateId}}/cities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "countries", "states", "{{stateId}}", "cities"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "work",
+      "item": [
+        {
+          "name": "Public",
+          "item": [
+            {
+              "name": "Get Home Page",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/works/home",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "works", "home"]
+                }
+              }
+            },
+            {
+              "name": "List Works",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/works?page=1&limit=20&sortBy=popularityScore&order=DESC",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "works"],
+                  "query": [
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "20" },
+                    { "key": "title", "value": "", "disabled": true },
+                    { "key": "type", "value": "MANGA", "disabled": true },
+                    { "key": "demographic", "value": "SEINEN", "disabled": true },
+                    { "key": "contentRating", "value": "TEEN", "disabled": true },
+                    { "key": "visibilityStatus", "value": "PUBLISHED", "disabled": true },
+                    { "key": "moderationStatus", "value": "OK", "disabled": true },
+                    { "key": "publicationStatus", "value": "ONGOING", "disabled": true },
+                    { "key": "startYear", "value": "2024", "disabled": true },
+                    { "key": "endYear", "value": "2026", "disabled": true },
+                    { "key": "tags", "value": "action,drama", "disabled": true },
+                    { "key": "minRating", "value": "7", "disabled": true },
+                    { "key": "sortBy", "value": "popularityScore" },
+                    { "key": "order", "value": "DESC" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Work by Slug",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/works/{{workSlug}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "works", "{{workSlug}}"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Authenticated",
+          "item": [
+            {
+              "name": "Report Work",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"INAPPROPRIATE_CONTENT\",\n  \"description\": \"This Work contains inappropriate content\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/works/{{workId}}/report",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "works", "{{workId}}", "report"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin/Moderator",
+          "item": [
+            {
+              "name": "Create Work",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"New Work Title\",\n  \"nativeTitle\": \"作品名\",\n  \"englishTitle\": \"New Work Title\",\n  \"description\": \"An interesting work about...\",\n  \"type\": \"MANGA\",\n  \"demographic\": \"SEINEN\",\n  \"contentRating\": \"TEEN\",\n  \"visibilityStatus\": \"PRIVATE\",\n  \"publicationStatus\": \"DRAFT\",\n  \"moderationStatus\": \"OK\",\n  \"startYear\": 2024,\n  \"alternativeTitles\": [\"Alt Title 1\", \"Alt Title 2\"],\n  \"mangaDetails\": {\n    \"chapterCount\": 12,\n    \"volumeCount\": 2\n  },\n  \"tagIds\": []\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/works",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "works"]
+                }
+              }
+            },
+            {
+              "name": "Update Work",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Updated Work Title\",\n  \"description\": \"Updated description\",\n  \"publicationStatus\": \"ONGOING\",\n  \"visibilityStatus\": \"PUBLISHED\",\n  \"mangaDetails\": {\n    \"chapterCount\": 24\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/works/{{workId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "works", "{{workId}}"]
+                }
+              }
+            },
+            {
+              "name": "Upload Cover",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "file", "type": "file", "src": "" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/works/{{workId}}/cover",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "works", "{{workId}}", "cover"]
+                }
+              }
+            },
+            {
+              "name": "Upload Banner",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "file", "type": "file", "src": "" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/works/{{workId}}/banner",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "works", "{{workId}}", "banner"]
+                }
+              }
+            },
+            {
+              "name": "Delete Work",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/works/{{workId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "works", "{{workId}}"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Chapters",
+      "item": [
+        {
+          "name": "Public",
+          "item": [
+            {
+              "name": "List Chapters by Work",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/chapters/work/{{workId}}?limit=20&order=ASC",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "chapters", "work", "{{workId}}"],
+                  "query": [
+                    { "key": "cursor", "value": "", "disabled": true },
+                    { "key": "page", "value": "1", "disabled": true },
+                    { "key": "limit", "value": "20" },
+                    { "key": "order", "value": "ASC" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Chapter by ID",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/chapters/{{chapterId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "chapters", "{{chapterId}}"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Authenticated",
+          "item": [
+            {
+              "name": "Report Chapter",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"INAPPROPRIATE_CONTENT\",\n  \"description\": \"This chapter contains inappropriate content\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/chapters/{{chapterId}}/report",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "chapters", "{{chapterId}}", "report"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin/Moderator",
+          "item": [
+            {
+              "name": "Create Chapter",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"workId\": \"{{workId}}\",\n  \"number\": 1,\n  \"title\": \"Chapter 1 Title\",\n  \"description\": \"Chapter description\",\n  \"publishedAt\": \"2024-01-15\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/chapters",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "chapters"]
+                }
+              }
+            },
+            {
+              "name": "Update Chapter",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Updated Chapter Title\",\n  \"description\": \"Updated description\",\n  \"isActive\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/chapters/{{chapterId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "chapters", "{{chapterId}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Chapter",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/chapters/{{chapterId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "chapters", "{{chapterId}}"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Pages",
+      "item": [
+        {
+          "name": "Public",
+          "item": [
+            {
+              "name": "List Pages by Chapter",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/pages/chapter/{{chapterId}}?page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "pages", "chapter", "{{chapterId}}"],
+                  "query": [
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "20" }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin/Moderator",
+          "item": [
+            {
+              "name": "Upload Pages (ZIP)",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    { "key": "file", "type": "file", "src": "", "description": "ZIP file containing chapter page images" }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/pages/chapter/{{chapterId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "pages", "chapter", "{{chapterId}}"]
+                }
+              }
+            },
+            {
+              "name": "Update Page",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"number\": 1,\n  \"isActive\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/pages/{{pageId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "pages", "{{pageId}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Page",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/pages/{{pageId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "pages", "{{pageId}}"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tags",
+      "item": [
+        {
+          "name": "Public",
+          "item": [
+            {
+              "name": "List Tags",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/tags?page=1&limit=50&order=ASC",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tags"],
+                  "query": [
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "50" },
+                    { "key": "search", "value": "", "disabled": true },
+                    { "key": "type", "value": "genre", "disabled": true },
+                    { "key": "order", "value": "ASC" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Tag by ID",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/tags/{{tagId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tags", "{{tagId}}"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin/Moderator",
+          "item": [
+            {
+              "name": "Create Tag",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Action\",\n  \"description\": \"Action-packed stories\",\n  \"type\": \"genre\",\n  \"color\": \"#FF5733\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/tags",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tags"]
+                }
+              }
+            },
+            {
+              "name": "Update Tag",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Tag Name\",\n  \"description\": \"Updated description\",\n  \"isActive\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/tags/{{tagId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tags", "{{tagId}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Tag",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/tags/{{tagId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "tags", "{{tagId}}"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Public",
+          "item": [
+            {
+              "name": "List Comments",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/comments?workId={{workId}}&page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "comments"],
+                  "query": [
+                    { "key": "workId", "value": "{{workId}}" },
+                    { "key": "chapterId", "value": "{{chapterId}}", "disabled": true },
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "20" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Comment Replies",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/comments/{{commentId}}/replies?page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "comments", "{{commentId}}", "replies"],
+                  "query": [
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "20" }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Authenticated",
+          "item": [
+            {
+              "name": "Get Comment Tree",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/comments/tree?workId={{workId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "comments", "tree"],
+                  "query": [
+                    { "key": "workId", "value": "{{workId}}" },
+                    { "key": "chapterId", "value": "{{chapterId}}", "disabled": true }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Create Comment",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"content\": \"This Work is amazing!\",\n  \"workId\": \"{{workId}}\",\n  \"chapterId\": null,\n  \"parentCommentId\": null,\n  \"isSpoiler\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/comments",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "comments"]
+                }
+              }
+            },
+            {
+              "name": "Update Comment",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"content\": \"Updated comment content\",\n  \"isSpoiler\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/comments/{{commentId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "comments", "{{commentId}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Comment",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/comments/{{commentId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "comments", "{{commentId}}"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "item": [
+        {
+          "name": "List My Favorites",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Check Favorite",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites/check/{{workId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites", "check", "{{workId}}"]
+            }
+          }
+        },
+        {
+          "name": "Add Favorite",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workId\": \"{{workId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites"]
+            }
+          }
+        },
+        {
+          "name": "Remove Favorite",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/favorites/{{workId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "favorites", "{{workId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ratings",
+      "item": [
+        {
+          "name": "Public",
+          "item": [
+            {
+              "name": "List Ratings by Work",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/ratings?workId={{workId}}&page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "ratings"],
+                  "query": [
+                    { "key": "workId", "value": "{{workId}}" },
+                    { "key": "page", "value": "1" },
+                    { "key": "limit", "value": "20" }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Authenticated",
+          "item": [
+            {
+              "name": "Get My Rating for Work",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/ratings/me/{{workId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "ratings", "me", "{{workId}}"]
+                }
+              }
+            },
+            {
+              "name": "Create Rating",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"workId\": \"{{workId}}\",\n  \"score\": 8.5,\n  \"review\": \"Great Work with an engaging story!\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/ratings",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "ratings"]
+                }
+              }
+            },
+            {
+              "name": "Update Rating",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"score\": 9.0,\n  \"review\": \"Updated review after finishing the series.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/ratings/{{ratingId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "ratings", "{{ratingId}}"]
+                }
+              }
+            },
+            {
+              "name": "Delete Rating",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/ratings/{{ratingId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "ratings", "{{ratingId}}"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Reading History",
+      "item": [
+        {
+          "name": "List My Reading History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reading-history?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reading-history"],
+              "query": [
+                { "key": "status", "value": "reading", "disabled": true },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get History for Work",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reading-history/work/{{workId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reading-history", "work", "{{workId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Reading History",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workId\": \"{{workId}}\",\n  \"status\": \"reading\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reading-history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reading-history"]
+            }
+          }
+        },
+        {
+          "name": "Update Reading History",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\",\n  \"lastChapterReadId\": null,\n  \"lastPageReadId\": null,\n  \"chaptersRead\": 150,\n  \"pagesRead\": 3000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reading-history/{{historyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reading-history", "{{historyId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Reading History",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reading-history/{{historyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reading-history", "{{historyId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "accessToken", "value": "", "type": "string" },
+    { "key": "refreshToken", "value": "", "type": "string" },
+    { "key": "workId", "value": "", "type": "string" },
+    { "key": "workSlug", "value": "work-slug-here", "type": "string" },
+    { "key": "chapterId", "value": "", "type": "string" },
+    { "key": "pageId", "value": "", "type": "string" },
+    { "key": "tagId", "value": "", "type": "string" },
+    { "key": "commentId", "value": "", "type": "string" },
+    { "key": "ratingId", "value": "", "type": "string" },
+    { "key": "historyId", "value": "", "type": "string" },
+    { "key": "userId", "value": "", "type": "string" },
+    { "key": "countryId", "value": "1", "type": "string" },
+    { "key": "stateId", "value": "1", "type": "string" }
+  ]
+}
