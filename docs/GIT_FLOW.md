@@ -54,8 +54,9 @@ Add the following check to CI pipelines (GitHub Actions / GitLab CI):
 check-git-flow:
   steps:
     - run: |
-        if [ "$(git rev-list --count main..develop)" -lt 0 ]; then
-          echo "ERROR: main is ahead of develop — Git Flow violation"
+        AHEAD=$(git rev-list --count develop..main 2>/dev/null)
+        if [ -n "$AHEAD" ] && [ "$AHEAD" -gt 0 ] 2>/dev/null; then
+          echo "ERROR: main is $AHEAD commit(s) ahead of develop — Git Flow violation"
           exit 1
         fi
     - run: |

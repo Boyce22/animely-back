@@ -1,0 +1,145 @@
+name: Performance Review Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [develop, main]
+
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+
+jobs:
+  perf-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine base ref
+        id: base
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          echo "sha=${BASE_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Detect changed files
+        id: changes
+        run: |
+          git fetch origin "${{ steps.base.outputs.sha }}" --depth=1 2>/dev/null || true
+          CHANGED=$(git diff --name-only "${{ steps.base.outputs.sha }}"...HEAD 2>/dev/null || git diff --name-only HEAD~1 HEAD)
+          echo "all_changed<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          FRONTEND_PATTERNS='\.(js|jsx|ts|tsx|css|scss|less|html|svg)$'
+          FRONTEND=$(echo "$CHANGED" | grep -iE "$FRONTEND_PATTERNS" || true)
+          if [ -z "$FRONTEND" ]; then
+            echo "has_frontend=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_frontend=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        if: steps.changes.outputs.has_frontend == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.changes.outputs.has_frontend == 'true'
+        run: npm ci
+
+      - name: Build
+        if: steps.changes.outputs.has_frontend == 'true'
+        run: npm run build
+
+      - name: Measure bundle
+        if: steps.changes.outputs.has_frontend == 'true'
+        id: bundle
+        run: |
+          TOTAL=$(du -sh dist/ 2>/dev/null | cut -f1 || echo "N/A")
+          echo "total=${TOTAL}" >> $GITHUB_OUTPUT
+          {
+            echo "JS files:"
+            find dist -name '*.js' -exec ls -lh {} \; 2>/dev/null | awk '{print "  "$5, $NF}' || echo "  none"
+          } > bundle_files.txt
+
+      - name: Set pending status
+        if: steps.changes.outputs.has_frontend == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: 'pending',
+              context: 'gate/performance-review',
+              description: 'Awaiting PerfEngineer review',
+            });
+
+      - name: Post PR comment
+        if: steps.changes.outputs.has_frontend == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const changedFiles = process.env.CHANGED_FILES || 'unknown';
+            const bundleTotal = process.env.BUNDLE_TOTAL || 'N/A';
+            const fs = require('fs');
+            const bundleDetails = fs.existsSync('bundle_files.txt')
+              ? fs.readFileSync('bundle_files.txt', 'utf8')
+              : 'N/A';
+
+            const body = `## Performance Review Gate
+
+            This PR contains frontend changes and requires **PerfEngineer** review.
+
+            ### Changed Files
+            \`\`\`
+            ${changedFiles.split('\n').filter(Boolean).slice(0, 60).join('\n')}
+            \`\`\`
+
+            ### Bundle Size
+            **Total:** ${bundleTotal}
+
+            \`\`\`
+            ${bundleDetails}
+            \`\`\`
+
+            ### Review Checklist
+            - [ ] Bundle size change within budget (+5% or less)
+            - [ ] No unnecessary re-renders or wasted renders
+            - [ ] Lazy loading / code splitting implemented where applicable
+            - [ ] Tree shaking verified (no unused imports)
+            - [ ] Core Web Vitals thresholds: LCP < 2.5s, INP < 200ms, CLS < 0.1
+            - [ ] No synchronous blocking code in render path
+
+            **Blocking:** This PR cannot be merged until PerfEngineer signs off.
+            See [PERFORMANCE_GATE.md](docs/PERFORMANCE_GATE.md) for the override procedure.`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+        env:
+          CHANGED_FILES: ${{ steps.changes.outputs.all_changed }}
+          BUNDLE_TOTAL: ${{ steps.bundle.outputs.total }}
+
+      - name: Auto-skip (non-frontend)
+        if: steps.changes.outputs.has_frontend == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: 'success',
+              context: 'gate/performance-review',
+              description: 'Auto-skipped — no frontend changes detected',
+            });

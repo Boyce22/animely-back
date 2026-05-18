@@ -66,7 +66,7 @@ const profileWidgetSchema = z.object({
   locked: z.boolean().optional(),
   position: widgetPositionSchema,
   style: widgetStyleSchema.optional(),
-  config: z.record(z.unknown()),
+  config: z.record(z.string(), z.unknown()),
 });
 
 const profileBackgroundSchema = z.object({

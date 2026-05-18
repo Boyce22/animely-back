@@ -1,0 +1,50 @@
+name: Git Flow Check
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  statuses: write
+
+jobs:
+  check-git-flow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch both main and develop
+        run: |
+          git fetch origin main --depth=100 2>/dev/null || true
+          git fetch origin develop --depth=100 2>/dev/null || true
+
+      - name: Check main is not ahead of develop
+        run: |
+          set +e
+          AHEAD=$(git rev-list --count develop..main 2>/dev/null)
+          if [ -n "$AHEAD" ] && [ "$AHEAD" -gt 0 ] 2>/dev/null; then
+            echo "❌ ERROR: main is $AHEAD commit(s) ahead of develop — Git Flow violation"
+            echo ""
+            echo "Commits in main but not in develop:"
+            git log --oneline develop..main 2>/dev/null
+            echo ""
+            echo "Fix: git checkout develop && git merge main && git push origin develop"
+            exit 1
+          fi
+
+      - name: Secondary verification
+        run: |
+          COMMITS=$(git log --oneline --left-right main...develop 2>/dev/null)
+          if echo "$COMMITS" | grep -q '^<'; then
+            echo "❌ ERROR: main has commits not in develop"
+            echo "$COMMITS" | grep '^<'
+            echo ""
+            echo "Fix: git checkout develop && git merge main && git push origin develop"
+            exit 1
+          fi
+          echo "✅ Git Flow OK — main is not ahead of develop"
